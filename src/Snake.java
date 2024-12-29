@@ -1,77 +1,38 @@
-import java.util.Set;
+import java.util.Deque;
+import java.util.LinkedList;
 
 public class Snake {
-    SnakeNode head, tail;
-    int snakeLength;
-    Snake(int i, int j) {
-        head = new SnakeNode(i, j, null, null);
-        tail = head;
-        this.snakeLength = 0;
-        snakeMatrix[i][j] = 1;
+    private Deque<Position> body;
+    private boolean growing;
+
+    public Snake(Position initialPosition) {
+        this.body = new LinkedList<>();
+        this.body.add(initialPosition);
+        this.growing = false;
     }
 
-    public boolean isValid(int i, int j) {
-        if (i >=0 && i < 20 || j>=0 && j <20 && snakeMatrix[i][j] == 0){
-        return true;
+    public Position getHead() {
+        if (body.isEmpty()) {
+            throw new IllegalStateException("The snake's body is empty. Game initialization failed!");
         }
-        return false;
+        return body.getFirst();
     }
 
-    public void Move(String direction) {
-        int i = head.i, j = head.j;
-        SnakeFood snakeFood = new SnakeFood(i ,j);
-        if (direction == "left") {
-            if (!isValid(i, j-1)) {
-                System.out.println("game over");
-                return;
-            }
-            snakeMatrix[i][j-1] = 1;
-            head.right = new SnakeNode(i, j-1, null, null);
+    public Deque<Position> getBody() {
+        return body;
+    }
 
-        } else if(direction == "right") {
-            if (!isValid(i, j + 1)) {
-                System.out.println("game over");
-                return;
-            }
-            snakeMatrix[i][j + 1] = 1;
-            head.right = new SnakeNode(i, j + 1, null, null);
-        } else if (direction == "up") {
-            if (!isValid(i - 1, j)) {
-                System.out.println("game over");
-                return;
-            }
-            snakeMatrix[i - 1][j] = 1;
-            head.right = new SnakeNode(i - 1, j, null, null);
+    public void grow() {
+        this.growing = true;
+    }
 
+    public void move(Position newHead) {
+        body.addFirst(newHead);
+
+        if (!growing) {
+            body.removeLast();
         } else {
-            if (!isValid(i + 1, j)) {
-                System.out.println("game over");
-                return;
-            }
-            snakeMatrix[i + 1][j] = 1;
-            head.right = new SnakeNode(i + 1, j, null, null);
-        }
-        SnakeNode temp = head.right;
-        head = head.right;
-        head.left = temp;
-
-//        shift snake:
-        int xCoordinate = tail.i;
-        int yCoordinate = tail.j;
-        snakeMatrix[xCoordinate][yCoordinate] = 0;
-        tail = tail.right;
-        tail.left = null;
-    }
-
-    public void foodIntake(SnakeFood snakeFood) {
-        if (isValid(snakeFood.i, snakeFood.j)) {
-            snakeLength++;
+            growing = false;
         }
     }
 }
-
-// Entitty diagram how the entities should look like:
-//
-// Driver CLass for managing
-// foodd Manager class for managing the all food related things.SnakeFood not a task of snake class as per say.
-
